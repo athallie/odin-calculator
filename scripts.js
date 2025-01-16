@@ -21,15 +21,13 @@ backspaceButton.addEventListener("click", (e) => {
 inputField.addEventListener("click", (e) => {
     let element = e.target
     outputField.focus()
-
-    console.log(element.id);
-
     if (element.nodeName == "BUTTON") {
         if (element.id == "clear-button") {
             outputField.value = "0"
             isCleared = true
             expression = []
         } else {
+            // 
             if (
                 contentIsOperator == true &&
                 element.textContent != "." &&
@@ -49,30 +47,52 @@ inputField.addEventListener("click", (e) => {
                 }
                 isCleared = false
             } else if (operators.includes(element.textContent)) {
-                if (expression.length == 2) {
-                    let result = eval(expression)
-                    expression = [result]
+                if (
+                    operators.includes(expression.at(-1)) &&
+                    element.textContent != '=' &&
+                    contentIsOperator == true
+                ) {
+                    expression.pop()
                 } else {
                     expression.push(outputField.value)
                 }
+                if (expression.length == 3) {
+                    let result = eval(expression)
+                    outputField.value = result
+                    expression = []
+                } else {
+                    outputField.value = element.textContent
+                }
                 if (element.textContent != '=') {
+                    if (expression.length == 0) {
+                        expression.push(outputField.value)
+                    }
                     expression.push(element.textContent)
                 }
-                outputField.value = element.textContent
                 contentIsOperator = true
                 isCleared = false
             }
         }
     }
-    
-    console.log(expression);
-    
 })
 
 function eval(expression) {
     if (expression.length < 3) {
         return false
-    } else {
-        return 1
+    }
+
+    let operand1 = parseFloat(expression[0])
+    let operator = expression[1]
+    let operand2 = parseFloat(expression[2])
+
+    switch(operator) {
+        case '+':
+            return operand1 + operand2
+        case '-':
+            return operand1 - operand2
+        case '\u00D7':
+            return operand1 * operand2
+        case '\u00F7':
+            return operand1 / operand2
     }
 }
